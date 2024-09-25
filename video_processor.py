@@ -16,7 +16,7 @@ os.makedirs(train_A_dir, exist_ok=True)
 os.makedirs(train_B_dir, exist_ok=True)
 
 def extract_and_process_frames(video_path, frame_rate=1, height=480, start_frame=0):
-    video_frames, _, info = read_video(video_path, start_pts=0, end_pts=None, pts_unit='sec')
+    video_frames, _, info = read_video(video_path, start_pts=0, end_pts=5, pts_unit='sec')
     fps = info['video_fps']
     total_frames = video_frames.shape[0]
 
@@ -24,12 +24,12 @@ def extract_and_process_frames(video_path, frame_rate=1, height=480, start_frame
 
     for i in range(start_frame, total_frames, frame_interval):
         frame = video_frames[i]
-        frame_pil = transforms.ToPILImage()(frame)
+        frame_pil = transforms.ToPILImage()(frame.permute(2, 0, 1))
         orig_width, orig_height = frame_pil.size
         aspect_ratio = orig_width / orig_height
         new_width = int(height * aspect_ratio)
         frame_resized = frame_pil.resize((new_width, height), Image.BICUBIC)
-        frame_gray = frame_resized.convert('L')
+        frame_gray = frame_resized.convert('L') # Conversion to grascale can be controlled here, look into more accurate
 
         frame_number = f"{i:06d}"
         frame_basename = os.path.splitext(os.path.basename(video_path))[0]
